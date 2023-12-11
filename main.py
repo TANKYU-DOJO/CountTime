@@ -36,7 +36,7 @@ while(True):
         view = cv2.rectangle(frame, (left, top), (right, bottom), (0,255,0))
         view = cv2.putText(view, "Press S to start", (30, height - 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-    if status == 1:
+    elif status == 1:
         view = cv2.rectangle(frame, (left, top), (right, bottom),(0,0,255))
         timer = time.time() - start_time
 
@@ -46,7 +46,7 @@ while(True):
     k = cv2.waitKey(1)
     if k == 113:
         break
-    if k ==115:
+    elif k == 115:
         status = 1
         start_time = time.time()
 
