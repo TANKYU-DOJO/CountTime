@@ -1,55 +1,92 @@
-import numpy as np
 import cv2
+import checker
 import time
+import PySimpleGUI as psg
 
-box_size = 32
-cap = cv2.VideoCapture(0)
-recording = False
-frame = cap.read()[1]
-height, width, _ = frame.shape
-timer = 0
-start_time = 0
+startID = 0
+endID = 0
 
-top = round(height / 2 - box_size / 2)
-bottom = round(height / 2 + box_size / 2)
-left = round(width / 2 - box_size / 2)
-right = round(width / 2 + box_size / 2)
-last_frame = frame[top:bottom, left:right]
+layout = [
+    [psg.Text("始点:"), psg.Input("0")],
+    [psg.Text("終点:"), psg.Input("1")],
+    [psg.Button("計測")]
+]
 
-while(True):
-    # Capture frame-by-frame
-    _, frame = cap.read()
-    pre_frame = frame[top:bottom, left:right]
+window = psg.Window("デバイスIDを入力", layout)
 
-    # Display the resulting frame
-    if not recording:
-        view = cv2.rectangle(frame, (left, top), (right, bottom), (0,255,0))
-        view = cv2.putText(view, "Press S to start", (30, height - 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+while True:
+    event, values = window.read()
 
-    else:
-        view = cv2.rectangle(frame, (left, top), (right, bottom),(0,0,255))
-        timer = time.time() - start_time
-        
-        diff = cv2.absdiff(pre_frame, last_frame)
-        #to grayscale
-        diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY)
-        #diffを2値化
-        im_diff_bin = (diff > 32) * 255
-        
-        #平均して白か黒か判断
-        if np.average(im_diff_bin) > 128:
-            recording = False
-    
-    last_frame = pre_frame
-
-    view = cv2.putText(view, str(timer), (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-    view = cv2.putText(view, "Press Q to quit", (30, height - 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    cv2.imshow('frame', view)
-    k = cv2.waitKey(1)
-    if k == 113:
+    if event == "計測":
+        startID = int(values[0])
+        endID = int(values[1])
         break
-    elif k == 115:
-        recording = True
-        start_time = time.time()
+    elif event == psg.WINDOW_CLOSED:
+        quit()
+
+print(startID)
+print(endID)
+ 
+startCam = checker.Checker(startID)
+endCam = checker.Checker(endID)
+
+startTime = 0
+endTime = 0
+
+status = 0 # 0=待機中, 1=始点を通過, 2=終点も通過
+
+startCam.recording = True
+
+while True:
+    startCam.read()
+    endCam.read()
+
+    if status == 0:
+        startCam.check()
+        if not startCam.recording:
+            startTime = time.time()
+            status = 1
+            endCam.recording = True
+    elif status == 1:
+        endCam.check()
+        if not endCam.recording:
+            endTime = time.time()
+            status = 2
+
+    if status == 2:
+        cv2.imshow(
+            "Start",
+            cv2.putText(
+                startCam.view(),
+                str(endTime - startTime),
+                (30, 30),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 0, 255),
+                2
+            )
+        )
+    else:
+        cv2.imshow("Start", startCam.view())
+    
+    cv2.imshow(
+        "End",
+        cv2.putText(
+            endCam.view(),
+            "Press Q to quit",
+            (30, 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 255, 0),
+            2
+        )
+    )
+
+    key = cv2.waitKey(1)
+    if key == ord('q'):
+        break
+    if key == ord('r'):
+        status = 0
+        startCam.recording = True
 
 cv2.destroyAllWindows()
