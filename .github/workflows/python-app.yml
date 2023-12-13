@@ -27,7 +27,7 @@ jobs:
       run: |
         python -m pip install pip-review
         pip-review --auto
-        pip install opencv-python checker pysimplegui
+        pip install opencv-python pysimplegui
 
     - name: Build
       run: nuitka --standalone --onefile --mingw main.py
