@@ -83,7 +83,7 @@ while True:
         endView = cv2.putText(
             endCam.view(),
             "Press R to reset",
-            (30, 30),
+            (30, 60),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,
             (0, 255, 0),
