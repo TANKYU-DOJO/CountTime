@@ -60,16 +60,15 @@ while True:
         if not endCam.recording:
             status = 2
 
-    if status != 0:
-        startView = cv2.putText(
-            startView,
-            str(endTime - startTime),
-            (30, 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            (0, 0, 255),
-            2
-        )
+    startView = cv2.putText(
+        startView,
+        "Waiting..." if status == 0 else str(endTime - startTime),
+        (30, 30),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        1,
+        (0, 0, 255),
+        2
+    )
 
     cv2.imshow("Start", startView)
     cv2.imshow(
