@@ -24,6 +24,8 @@ while True:
     elif event == psg.WINDOW_CLOSED:
         quit()
 
+window.close()
+
 startCam = checker.Checker(startID)
 endCam = checker.Checker(endID)
 
@@ -44,13 +46,14 @@ while True:
             startTime = time.time()
             status = 1
             endCam.recording = True
+
     elif status == 1:
         endCam.check()
+        endTime = time.time()
         if not endCam.recording:
-            endTime = time.time()
             status = 2
 
-    if status == 2:
+    if status != 0:
         cv2.imshow(
             "Start",
             cv2.putText(
@@ -85,5 +88,8 @@ while True:
     if key == ord('r'):
         status = 0
         startCam.recording = True
+        endCam.recording = False
+        startTime = 0
+        endTime = 0
 
 cv2.destroyAllWindows()
