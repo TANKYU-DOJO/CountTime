@@ -48,8 +48,6 @@ while True:
     startCam.check()
     endCam.check()
 
-    startView = startCam.view()
-
     if status == 0 and not startCam.recording:
         startTime = time.time()
         status = 1
@@ -60,6 +58,7 @@ while True:
         if not endCam.recording:
             status = 2
 
+    startView = startCam.view()
     startView = cv2.putText(
         startView,
         "Waiting..." if status == 0 else str(endTime - startTime),
@@ -70,19 +69,28 @@ while True:
         2
     )
 
-    cv2.imshow("Start", startView)
-    cv2.imshow(
-        "End",
-        cv2.putText(
+    endView = endCam.view()
+    endView = cv2.putText(
+        endCam.view(),
+        "Press Q to quit",
+        (30, 30),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        1,
+        (0, 255, 0),
+        2
+    )
+    if status != 0:
+        endView = cv2.putText(
             endCam.view(),
-            #"Press Q to quit",
-            str(status),
+            "Press R to reset",
             (30, 30),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,
             (0, 255, 0),
             2
         )
-    )
+
+    cv2.imshow("Start", startView)
+    cv2.imshow("End", endView)
 
 cv2.destroyAllWindows()
