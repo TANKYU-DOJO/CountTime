@@ -19,19 +19,18 @@ class Checker:
 
         self.recording = False
 
-    def read(self) -> None:
-        self.frame = self.cap.read()[1]
-
     def check(self) -> None:
+        self.frame = self.cap.read()[1]
         pre_frame = self.frame[self.top:self.bottom, self.left:self.right]
+        if self.recording:
 
-        diff = cv2.absdiff(pre_frame, self.last_frame)
-        diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY) # To grayscale
-        im_diff_bin = (diff > 32) * 255 # diffを2値化
+            diff = cv2.absdiff(pre_frame, self.last_frame)
+            diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY) # To grayscale
+            im_diff_bin = (diff > 32) * 255 # diffを2値化
 
-        #平均して白か黒か判断
-        if numpy.average(im_diff_bin) > 128:
-            self.recording = False
+            #平均して白か黒か判断
+            if numpy.average(im_diff_bin) > 128:
+                self.recording = False
 
         self.last_frame = pre_frame
     

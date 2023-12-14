@@ -32,48 +32,52 @@ endCam = checker.Checker(endID)
 startTime = 0
 endTime = 0
 
-status = 0 # 0=待機中, 1=始点を通過, 2=終点も通過
+status = 2 # 0=待機中, 1=始点を通過, 2=終点も通過
 
-startCam.recording = True
+startCam.recording = False
 
 while True:
-    startCam.read()
-    endCam.read()
+    key = cv2.waitKey(1)
+    if key == ord('r'):
+            status = 0
+            startCam.recording = True
+            endCam.recording = False
+    elif key == ord('q'):
+        break
 
-    if status == 0:
-        startCam.check()
-        if not startCam.recording:
-            startTime = time.time()
-            status = 1
-            endCam.recording = True
+    startCam.check()
+    endCam.check()
+
+    startView = startCam.view()
+
+    if status == 0 and not startCam.recording:
+        startTime = time.time()
+        status = 1
+        endCam.recording = True
 
     elif status == 1:
-        endCam.check()
         endTime = time.time()
         if not endCam.recording:
             status = 2
 
     if status != 0:
-        cv2.imshow(
-            "Start",
-            cv2.putText(
-                startCam.view(),
-                str(endTime - startTime),
-                (30, 30),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (0, 0, 255),
-                2
-            )
+        startView = cv2.putText(
+            startView,
+            str(endTime - startTime),
+            (30, 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 0, 255),
+            2
         )
-    else:
-        cv2.imshow("Start", startCam.view())
 
+    cv2.imshow("Start", startView)
     cv2.imshow(
         "End",
         cv2.putText(
             endCam.view(),
-            "Press Q to quit",
+            #"Press Q to quit",
+            str(status),
             (30, 30),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,
@@ -81,15 +85,5 @@ while True:
             2
         )
     )
-
-    key = cv2.waitKey(1)
-    if key == ord('q'):
-        break
-    if key == ord('r'):
-        status = 0
-        startCam.recording = True
-        endCam.recording = False
-        startTime = 0
-        endTime = 0
 
 cv2.destroyAllWindows()
