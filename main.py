@@ -24,9 +24,6 @@ while True:
     elif event == psg.WINDOW_CLOSED:
         quit()
 
-print(startID)
-print(endID)
- 
 startCam = checker.Checker(startID)
 endCam = checker.Checker(endID)
 
@@ -68,7 +65,7 @@ while True:
         )
     else:
         cv2.imshow("Start", startCam.view())
-    
+
     cv2.imshow(
         "End",
         cv2.putText(
