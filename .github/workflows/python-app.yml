@@ -18,16 +18,25 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Upgrade MinGW
+      run: choco upgrade mingw -y
+
     - name: Set up Python 3.11
       uses: actions/setup-python@v3
       with:
         python-version: "3.11"
+
+    - name: Install pip-review
+      run: python -m pip install pip-review
+
+    - name: Upgrade Packages
+      run: pip-review --auto
+
     - name: Install dependencies
-      run: |
-        python -m pip install pip-review
-        pip-review --auto
-        pip install opencv-python pysimplegui nuitka
+      run: pip install opencv-python pysimplegui nuitka
 
     - name: Build
       run: nuitka --standalone --onefile --mingw --assume-yes-for-downloads --enable-plugin=tk-inter main.py
