@@ -24,9 +24,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
-    - name: Upgrade MinGW
-      run: choco upgrade mingw -y
-
     - name: Set up Python 3.11
       uses: actions/setup-python@v3
       with:
