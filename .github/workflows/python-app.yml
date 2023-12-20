@@ -39,7 +39,7 @@ jobs:
       run: pip install opencv-python pysimplegui nuitka
 
     - name: Build
-      run: nuitka --standalone --onefile --mingw --assume-yes-for-downloads --enable-plugin=tk-inter main.py
+      run: python -m nuitka --standalone --onefile --mingw --assume-yes-for-downloads --enable-plugin=tk-inter main.py
       
     - name: Upload
       uses: actions/upload-artifact@v3
