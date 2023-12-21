@@ -47,4 +47,4 @@ jobs:
         name: ${{ matrix.os }}
         path: |
           main.exe
-          main.app
+          main.bin
