@@ -1,9 +1,7 @@
 import cv2
 import time
 import PySimpleGUI as psg
-
 import numpy
-import cv2
 
 box_size = 32
 
