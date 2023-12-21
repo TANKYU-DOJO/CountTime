@@ -63,11 +63,12 @@ class Checker:
         cv2.imshow(self.name, self.frame)
 
 startID = 0
-endID = 0
+endID = 1
 
 layout = [
-    [psg.Text("始点:"), psg.Input("0")],
-    [psg.Text("終点:"), psg.Input("1")],
+    [psg.Text("始点カメラ:"), psg.Input(str(startID))],
+    [psg.Text("終点カメラ:"), psg.Input(str(endID))],
+    [psg.Text("計測部分の大きさ"), psg.Input(str(box_size))]
     [psg.Button("計測")]
 ]
 
@@ -79,6 +80,7 @@ while True:
     if event == "計測":
         startID = int(values[0])
         endID = int(values[1])
+        box_size = int(values[2])
         break
     elif event == psg.WINDOW_CLOSED:
         quit()
