@@ -89,9 +89,9 @@ unselected = "未選択"
 selectStartCam = "始点カメラを選択"
 selectEndCam = "終点カメラを選択"
 layout = [
-    [psg.Button(selectStartCam), psg.Text("始点カメラID:"), psg.Input(unselected)],
-    [psg.Button(selectEndCam), psg.Text("終点カメラID:"), psg.Input(unselected)],
-    [psg.Text("計測部分の大きさ"), psg.Input(str(box_size))],
+    [psg.Button(selectStartCam), psg.Text("ID:"), psg.Input(unselected)],
+    [psg.Button(selectEndCam), psg.Text("ID:"), psg.Input(unselected)],
+    [psg.Text("計測部分の大きさ:"), psg.Input(str(box_size))],
     [psg.Button("計測!")]
 ]
 
@@ -118,7 +118,7 @@ while True:
 
         if startID == endID:
             messagebox.showerror("ERROR", "始点カメラIDと終点カメラIDが同じです。")
-            
+
         else:
             try:
                 startCam = Checker(cam[startID], "Start")
