@@ -1,16 +1,24 @@
 import cv2
 import time
+from tkinter import messagebox
 import PySimpleGUI as psg
 import numpy
 
 box_size = 32
 
+def putText(image, text, pos, color):
+    return cv2.putText(image, text, pos, cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+
+# 物体通過検知用クラス
 class Checker:
-    # 第1引数: カメラのID
-    # 第2引数: カメラの命名
-    def __init__(self, deviceID: int, name: str) -> None:
+
+    def __init__(self, cap, name: str) -> None:
+        """
+        第1引数: カメラのインスタンス
+        第2引数: カメラの命名
+        """
         self.name = name
-        self.cap = cv2.VideoCapture(deviceID)
+        self.cap = cap
         self.frame = self.cap.read()[1]
         self.height, self.width, _ = self.frame.shape
 
@@ -29,11 +37,10 @@ class Checker:
         if self.recording:
 
             diff = cv2.absdiff(pre_frame, self.last_frame)
-            diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY) # To grayscale
+            diff = cv2.cvtColor(diff, cv2.COLOR_BGR2GRAY) # グレースケールに
             im_diff_bin = (diff > 32) * 255 # diffを2値化
 
-            #平均して白か黒か判断
-            if numpy.average(im_diff_bin) > 128:
+            if numpy.average(im_diff_bin) > 128: #平均して白か黒か判断
                 self.recording = False
 
         self.last_frame = pre_frame
@@ -47,46 +54,88 @@ class Checker:
         )
 
     def putText(self, text: str, pos, color) -> None:
-        self.frame = cv2.putText(
-            self.frame,
-            text,
-            pos,
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            color,
-            2
-        )
+        self.frame = putText(self.frame, text, pos, color)
 
     def imshow(self) -> None:
         cv2.imshow(self.name, self.frame)
 
-startID = 0
-endID = 1
+cam = []
+for i in range(10): # カメラをポート0~10まで開く試行
+    cap = cv2.VideoCapture(i)
+    if cap.read()[0]:
+        cam.append(cap)
 
+startID = 0 # 始点カメラID
+endID = 1 # 終点カメラID
+
+def selectCam() -> int:
+    """カメラの選択"""
+
+    viewing = 0
+    while True:
+        frame = cam[viewing].read()[1]
+        frame = putText(frame, "Press C to change camera", (30, 30), (0, 255, 0))
+        frame = putText(frame, "Press S to select this camera", (30, 60), (0, 255, 0))
+        cv2.imshow("Select camera", frame)
+
+        key = cv2.waitKey(1)
+        if key == ord('c'):
+            viewing = (viewing + 1) % len(cam)
+        elif key == ord('s'):
+            cv2.destroyAllWindows()
+            return viewing
+
+unselected = "未選択"
+selectStartCam = "始点カメラを選択"
+selectEndCam = "終点カメラを選択"
 layout = [
-    [psg.Text("始点カメラ:"), psg.Input(str(startID))],
-    [psg.Text("終点カメラ:"), psg.Input(str(endID))],
-    [psg.Text("計測部分の大きさ"), psg.Input(str(box_size))]
-    [psg.Button("計測")]
+    [psg.Button(selectStartCam), psg.Text("始点カメラID:"), psg.Input(unselected)],
+    [psg.Button(selectEndCam), psg.Text("終点カメラID:"), psg.Input(unselected)],
+    [psg.Text("計測部分の大きさ"), psg.Input(str(box_size))],
+    [psg.Button("計測!")]
 ]
 
 window = psg.Window("デバイスIDを入力", layout)
 
+startCam = 0
+endCam = 0
+
 while True:
     event, values = window.read()
 
-    if event == "計測":
-        startID = int(values[0])
-        endID = int(values[1])
-        box_size = int(values[2])
-        break
+    if event == selectStartCam:
+        window[0].update(str(selectCam()))
+    elif event == selectEndCam:
+        window[1].update(str(selectCam()))
+    elif event == "計測!":
+        try:
+            startID = int(values[0])
+            endID = int(values[1])
+            box_size = int(values[2])
+        except:
+            messagebox.showerror("ERROR", "数字を入力してください。")
+            continue
+
+        if startID == endID:
+            messagebox.showerror("ERROR", "始点カメラIDと終点カメラIDが同じです。")
+            
+        else:
+            try:
+                startCam = Checker(cam[startID], "Start")
+                endCam = Checker(cam[endID], "End")
+            except:
+                messagebox.showerror("ERROR", "カメラIDの範囲外です。")
+                continue
+            break
     elif event == psg.WINDOW_CLOSED:
         quit()
 
 window.close()
 
-startCam = Checker(startID, "Start")
-endCam = Checker(endID, "End")
+# 使用していないカメラを閉じる
+for i in range(len(cam)):
+    if i != startID and i != endID:
+        cam[i].release()
 
 startTime = 0
 endTime = 0
