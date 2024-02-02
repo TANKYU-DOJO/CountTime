@@ -1,6 +1,6 @@
 # 2点間物体通過時間計測プログラム
 ## ビルド済みバイナリを使用する場合(推奨)
-[Releases](https://github.com/TANKYUDO-DOJO/CountTime/releases/latest)からダウンロードして解答し、起動
+[Releases](https://github.com/TANKYUDO-DOJO/CountTime/releases/latest)からダウンロードして解凍し、起動
 ## Pythonインタプリタを介して実行する場合
 * パッケージ`pysimplegui`, `opencv-python`, `numpy`をインストール
 * 起動
