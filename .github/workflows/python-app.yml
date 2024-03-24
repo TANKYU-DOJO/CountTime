@@ -36,10 +36,15 @@ jobs:
       run: pip-review --auto
 
     - name: Install dependencies
-      run: pip install opencv-python pysimplegui nuitka
+      run: pip install pipenv
+
+    - name: Sync Environment
+      run: |
+        pipenv sync
+        pipenv install nuitka
 
     - name: Build
-      run: python -m nuitka --standalone --onefile --mingw --assume-yes-for-downloads --enable-plugin=tk-inter main.py
+      run: pipenv run python -m nuitka --standalone --onefile --mingw --assume-yes-for-downloads --enable-plugin=tk-inter main.py
       
     - name: Upload
       uses: actions/upload-artifact@v3

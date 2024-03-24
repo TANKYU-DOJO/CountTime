@@ -1,7 +1,7 @@
 import cv2
 import time
 from tkinter import messagebox
-import PySimpleGUI as psg
+import tkeasygui as psg
 import numpy
 
 box_size = 32
